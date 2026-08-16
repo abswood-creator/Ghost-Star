@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>Sparky — Ghost Hunter Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #0b0812;
+    --iris: #211b30;
+    --iris-deep: #14101f;
+    --pewter-dim: #4a4558;
+    --arc-violet: #9b6bff;
+    --arc-violet-soft: rgba(155, 107, 255, .5);
+    --arc-white: #f5f0ff;
+    --relic-gold: #e8c468;
+    --ink: #e7e2f2;
+    --ink-dim: #948da8;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    padding: 34px 18px 50px;
+    background:
+      radial-gradient(ellipse 620px 420px at 50% -8%, #26193f 0%, transparent 60%),
+      var(--void);
+    background-attachment: fixed;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--ink);
+  }
+
+  /* ---------- header ---------- */
+  .header { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .eyebrow {
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--arc-violet);
+    text-align: center;
+  }
+  .subhead {
+    margin: 0;
+    max-width: 300px;
+    text-align: center;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--ink-dim);
+  }
+
+  /* ---------- card frame ---------- */
+  .frame {
+    position: relative;
+    width: min(88vw, 340px);
+    padding: 16px 16px 0;
+    border-radius: 20px 20px 12px 12px;
+    background: linear-gradient(160deg, var(--pewter-dim) 0%, var(--iris) 45%, var(--iris-deep) 100%);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, .65),
+      inset 0 0 0 2px rgba(210, 200, 225, .12),
+      0 24px 60px -16px rgba(0, 0, 0, .85),
+      0 0 70px -14px var(--arc-violet-soft);
+  }
+  .frame::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    width: 13px;
+    height: 13px;
+    margin-left: -6.5px;
+    background: linear-gradient(135deg, var(--arc-white), var(--arc-violet) 55%, #4c2f8f);
+    transform: rotate(45deg);
+    border-radius: 2px;
+    box-shadow: 0 0 14px 3px var(--arc-violet-soft), 0 0 0 1px rgba(0, 0, 0, .5);
+  }
+  .frame.shake { animation: shake .25s linear; }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-4px); }
+    40% { transform: translateX(4px); }
+    60% { transform: translateX(-3px); }
+    80% { transform: translateX(3px); }
+  }
+
+  .window {
+    position: relative;
+    border-radius: 11px;
+    overflow: hidden;
+    background: radial-gradient(circle at 50% 32%, #241c33 0%, #0d0a14 68%, #06040a 100%);
+    box-shadow: inset 0 0 44px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(255, 255, 255, .04);
+  }
+  .window svg { display: block; width: 100%; height: auto; }
+
+  #ghostGroup {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: float 3.4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  .spark {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: var(--arc-white);
+    box-shadow: 0 0 7px 2px var(--arc-violet-soft);
+    pointer-events: none;
+    animation: twinkle 2.6s ease-in-out infinite;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: .12; transform: scale(.6); }
+    50% { opacity: .95; transform: scale(1); }
+  }
+
+  .plate { text-align: center; padding: 10px 8px 4px; }
+  .plate h1 {
+    margin: 2px 0 0;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: .12em;
+    font-size: clamp(24px, 6.4vw, 30px);
+    color: var(--arc-white);
+    text-shadow: 0 0 14px var(--arc-violet-soft), 0 2px 0 #000;
+  }
+  .plate .kind {
+    margin: 3px 0 0;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: .03em;
+    color: var(--ink-dim);
+  }
+
+  .bottom-skull {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 12px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .7));
+  }
+
+  /* ---------- HUD ---------- */
+  .hud { width: min(88vw, 340px); display: flex; flex-direction: column; gap: 9px; }
+  .hud-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .hud-row span:last-child { font-weight: 600; color: var(--arc-white); }
+
+  .charge-track {
+    height: 11px;
+    border-radius: 6px;
+    background: var(--iris-deep);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+    overflow: hidden;
+  }
+  .charge-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #6d3fd6, var(--arc-violet) 60%, var(--arc-white));
+    box-shadow: 0 0 12px var(--arc-violet-soft);
+    transition: width .35s ease;
+  }
+
+  .zap-btn {
+    margin-top: 4px;
+    padding: 14px 18px;
+    min-height: 48px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(160deg, var(--arc-violet), #5b32b8);
+    color: #fff;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: .06em;
+    cursor: pointer;
+    box-shadow: 0 10px 22px -8px rgba(139, 92, 246, .65), inset 0 1px 0 rgba(255, 255, 255, .25);
+  }
+  .zap-btn:active { transform: translateY(1px); }
+  .zap-btn:disabled { opacity: .45; cursor: default; }
+  .zap-btn:focus-visible,
+  .reset-btn:focus-visible {
+    outline: 2px solid var(--arc-white);
+    outline-offset: 2px;
+  }
+
+  .footer-count {
+    margin: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: .04em;
+    color: var(--ink-dim);
+  }
+  .footer-count strong { font-weight: 600; color: var(--arc-violet); }
+
+  /* ---------- victory overlay ---------- */
+  .victory {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    text-align: center;
+    background: rgba(5, 3, 10, .9);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .4s ease;
+  }
+  .victory.show { opacity: 1; pointer-events: auto; }
+  .victory .title {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(19px, 5.6vw, 24px);
+    letter-spacing: .1em;
+    color: var(--relic-gold);
+    text-shadow: 0 0 22px rgba(232, 196, 104, .6);
+  }
+  .victory .detail {
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--ink-dim);
+    letter-spacing: .04em;
+  }
+  .reset-btn {
+    margin-top: 4px;
+    padding: 10px 18px;
+    min-height: 44px;
+    border-radius: 9px;
+    border: 1px solid var(--relic-gold);
+    background: transparent;
+    color: var(--relic-gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: .05em;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #ghostGroup { animation: none !important; }
+    .spark { animation: none !important; opacity: .3; }
+    .frame.shake { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <p class="eyebrow">Ghost Hunter — live prototype</p>
+    <p class="subhead">Every riff you play drains Sparky's charge — the bolts are redrawn live, so no two crackles strike the same way twice.</p>
+  </div>
+
+  <div class="frame" id="frame">
+    <div class="window">
+      <svg id="ghostSvg" viewBox="0 0 300 320" aria-hidden="true">
+        <defs>
+          <radialGradient id="bodyGrad" cx="50%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="55%" stop-color="#d8c6ff"/>
+            <stop offset="100%" stop-color="#8a6fdb" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="eyeGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="35%" stop-color="#c9a9ff"/>
+            <stop offset="100%" stop-color="#6d3fd6"/>
+          </radialGradient>
+          <filter id="softGlow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="4" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+          <filter id="boltGlow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <g id="boltsGroup" filter="url(#boltGlow)"></g>
+
+        <g id="ghostGroup">
+          <g filter="url(#softGlow)">
+            <ellipse cx="150" cy="168" rx="48" ry="54" fill="url(#bodyGrad)" opacity="0.9"/>
+            <ellipse cx="150" cy="168" rx="30" ry="34" fill="#ffffff" opacity="0.45"/>
+          </g>
+          <circle cx="135" cy="162" r="7" fill="url(#eyeGrad)" filter="url(#softGlow)"/>
+          <circle cx="165" cy="162" r="7" fill="url(#eyeGrad)" filter="url(#softGlow)"/>
+        </g>
+      </svg>
+
+      <div class="victory" id="victory">
+        <p class="title">Ghost Banished</p>
+        <p class="detail" id="victoryDetail">Charge depleted in 5 reps.</p>
+        <button class="reset-btn" id="resetBtn" type="button">Summon Sparky again</button>
+      </div>
+    </div>
+
+    <div class="plate">
+      <h1>Sparky</h1>
+      <p class="kind">Tiny Electric Ghost</p>
+    </div>
+
+    <div class="bottom-skull">
+      <svg viewBox="0 0 24 20" width="24" height="20" aria-hidden="true">
+        <defs>
+          <linearGradient id="metalGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#cfc9da"/>
+            <stop offset="1" stop-color="#726d82"/>
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="8" r="7" fill="url(#metalGrad)"/>
+        <path d="M5.3 9.5 a7 7 0 0 0 13.4 0 L17.6 14 a2 2 0 0 1 -2 1.7 h-7 a2 2 0 0 1 -2 -1.7 Z" fill="url(#metalGrad)"/>
+        <circle cx="9" cy="8.3" r="1.7" fill="#0a0a0a"/>
+        <circle cx="15" cy="8.3" r="1.7" fill="#0a0a0a"/>
+        <polygon points="12,10 12.9,11.8 11.1,11.8" fill="#0a0a0a"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="hud">
+    <div class="hud-row"><span>Charge</span><span id="chargePct">100%</span></div>
+    <div class="charge-track"><div class="charge-fill" id="chargeFill"></div></div>
+    <button class="zap-btn" id="zapBtn" type="button">🎸 Play a riff</button>
+    <p class="footer-count">Ghosts banished this session: <strong id="defeatCount">–</strong></p>
+  </div>
+
+<script>
+(function () {
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const CENTER_X = 150, CENTER_Y = 165;
+  const CHARGE_STEP = 20;
+
+  const frame = document.getElementById('frame');
+  const boltsGroup = document.getElementById('boltsGroup');
+  const chargeFill = document.getElementById('chargeFill');
+  const chargePct = document.getElementById('chargePct');
+  const zapBtn = document.getElementById('zapBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const defeatCountEl = document.getElementById('defeatCount');
+  const victoryEl = document.getElementById('victory');
+  const victoryDetail = document.getElementById('victoryDetail');
+  const windowEl = document.querySelector('.window');
+
+  let charge = 100;
+  let defeated = 0;
+  let hits = 0;
+  let busy = false;
+
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function clearGroup(g) {
+    while (g.firstChild) g.removeChild(g.firstChild);
+  }
+
+  function boltPath(cx, cy, angleDeg, length, segments) {
+    const rad = angleDeg * Math.PI / 180;
+    const dx = Math.cos(rad), dy = Math.sin(rad);
+    let d = `M ${cx.toFixed(1)} ${cy.toFixed(1)}`;
+    for (let i = 1; i <= segments; i++) {
+      const t = i / segments;
+      let px = cx + dx * length * t;
+      let py = cy + dy * length * t;
+      const wobble = 12 * (1 - t * 0.5);
+      px += (Math.random() - 0.5) * wobble;
+      py += (Math.random() - 0.5) * wobble;
+      d += ` L ${px.toFixed(1)} ${py.toFixed(1)}`;
+    }
+    return d;
+  }
+
+  function spawnBolts(count, big) {
+    clearGroup(boltsGroup);
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * 360;
+      const len = big ? 85 + Math.random() * 55 : 48 + Math.random() * 28;
+      const d = boltPath(CENTER_X, CENTER_Y, angle, len, 5);
+
+      const glow = document.createElementNS(SVG_NS, 'path');
+      glow.setAttribute('d', d);
+      glow.setAttribute('fill', 'none');
+      glow.setAttribute('stroke', '#9b6bff');
+      glow.setAttribute('stroke-width', '3.4');
+      glow.setAttribute('stroke-linecap', 'round');
+      glow.setAttribute('opacity', '.85');
+
+      const core = document.createElementNS(SVG_NS, 'path');
+      core.setAttribute('d', d);
+      core.setAttribute('fill', 'none');
+      core.setAttribute('stroke', '#f5f0ff');
+      core.setAttribute('stroke-width', '1.1');
+      core.setAttribute('stroke-linecap', 'round');
+      core.setAttribute('opacity', '.95');
+
+      boltsGroup.appendChild(glow);
+      boltsGroup.appendChild(core);
+    }
+  }
+
+  function scatterSparks(n) {
+    for (let i = 0; i < n; i++) {
+      const s = document.createElement('span');
+      s.className = 'spark';
+      s.style.left = `${Math.random() * 100}%`;
+      s.style.top = `${Math.random() * 100}%`;
+      s.style.animationDelay = `${Math.random() * 2.6}s`;
+      windowEl.appendChild(s);
+    }
+  }
+
+  function updateChargeUI() {
+    const shown = Math.max(charge, 0);
+    chargeFill.style.width = `${shown}%`;
+    chargePct.textContent = `${shown}%`;
+  }
+
+  async function loadDefeats() {
+    if (!window.storage) { defeatCountEl.textContent = '0'; return; }
+    try {
+      const res = await window.storage.get('sparky:defeats');
+      defeated = (res && res.value) ? (parseInt(res.value, 10) || 0) : 0;
+    } catch (e) {
+      defeated = 0;
+    }
+    defeatCountEl.textContent = defeated;
+  }
+
+  async function saveDefeats() {
+    if (!window.storage) return;
+    try {
+      await window.storage.set('sparky:defeats', String(defeated));
+    } catch (e) {
+      /* non-fatal: session count still shown, just won't persist */
+    }
+  }
+
+  function zap() {
+    if (busy || charge <= 0) return;
+    spawnBolts(13, true);
+    frame.classList.add('shake');
+    setTimeout(() => frame.classList.remove('shake'), 260);
+
+    charge = Math.max(0, charge - CHARGE_STEP);
+    hits += 1;
+    updateChargeUI();
+
+    if (charge <= 0) {
+      busy = true;
+      zapBtn.disabled = true;
+      setTimeout(onDefeat, 550);
+    }
+  }
+
+  function onDefeat() {
+    defeated += 1;
+    defeatCountEl.textContent = defeated;
+    victoryDetail.textContent = `Charge depleted in ${hits} reps.`;
+    victoryEl.classList.add('show');
+    saveDefeats();
+  }
+
+  function resetGhost() {
+    charge = 100;
+    hits = 0;
+    busy = false;
+    zapBtn.disabled = false;
+    updateChargeUI();
+    victoryEl.classList.remove('show');
+    spawnBolts(6, false);
+  }
+
+  zapBtn.addEventListener('click', zap);
+  resetBtn.addEventListener('click', resetGhost);
+
+  spawnBolts(6, false);
+  scatterSparks(7);
+  updateChargeUI();
+  loadDefeats();
+
+  if (!reduceMotion) {
+    setInterval(() => {
+      if (!busy) spawnBolts(5, false);
+    }, 280);
+  }
+})();
+</script>
+</body>
+</html>
