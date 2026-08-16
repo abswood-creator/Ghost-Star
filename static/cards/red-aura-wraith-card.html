@@ -333,6 +333,15 @@
     <p class="footer-count">Ghosts banished this session: <strong id="defeatCount">–</strong></p>
   </div>
 
+<!-- Audio players (same files) -->
+<audio id="songPart1" src="/static/audio/song.m4a" preload="auto"></audio>
+<audio id="songPart2" src="/static/audio/song2.m4a" preload="auto"></audio>
+
+<!-- Button -->
+<button onclick="playFullSong()" style="padding:12px 24px; font-size:16px; border-radius:8px; background:#1a1a1a; color:#fff; border:1px solid #444;">
+  🎸 Play Theme
+</button>
+
 <script>
 (function () {
   const SVG_NS = 'http://www.w3.org/2000/svg';
