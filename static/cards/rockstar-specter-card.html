@@ -409,33 +409,14 @@
 <!-- Audio players -->
 <audio id="songPart1" src="../audio/song.m4a" preload="auto"></audio>
 <audio id="songPart2" src="../audio/song2.m4a" preload="auto"></audio>
+<!-- Audio players -->
+<audio id="songPart1" src="/static/audio/song.m4a" preload="auto"></audio>
+<audio id="songPart2" src="/static/audio/song2.m4a" preload="auto"></audio>
 
 <!-- Button -->
 <button onclick="playFullSong()" style="padding:12px 24px; font-size:16px; border-radius:8px; background:#1a1a1a; color:#fff; border:1px solid #444;">
   🎸 Play Theme
 </button>
-
-<script>
-const part1 = document.getElementById('songPart1');
-const part2 = document.getElementById('songPart2');
-
-// When part 1 ends → automatically play part 2
-part1.addEventListener('ended', () => {
-  part2.currentTime = 0;
-  part2.play().catch(() => {});
-});
-
-function playFullSong() {
-  // Stop both first (in case it’s already playing)
-  part1.pause();
-  part2.pause();
-  part1.currentTime = 0;
-  part2.currentTime = 0;
-
-  // Start from the beginning
-  part1.play().catch(() => {});
-}
-</script>
 
 <script>
 (function () {
@@ -619,6 +600,26 @@ function playFullSong() {
     }, 300);
   }
 })();
+
+const part1 = document.getElementById('songPart1');
+const part2 = document.getElementById('songPart2');
+
+// When part 1 ends → automatically play part 2
+part1.addEventListener('ended', () => {
+  part2.currentTime = 0;
+  part2.play().catch(() => {});
+});
+
+function playFullSong() {
+  // Stop both first (in case it’s already playing)
+  part1.pause();
+  part2.pause();
+  part1.currentTime = 0;
+  part2.currentTime = 0;
+
+  // Start from the beginning
+  part1.play().catch(() => {});
+}
 </script>
 </body>
 </html>
