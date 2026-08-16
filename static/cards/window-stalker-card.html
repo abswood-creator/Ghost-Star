@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>The Window Stalker — Ghost Hunter Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Cormorant+Garamond:ital,wght@1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #04060a;
+    --slate: #12161e;
+    --slate-deep: #080a0f;
+    --rain: #7fa8c9;
+    --rain-soft: rgba(127, 168, 201, .35);
+    --dread: #c05d52;
+    --relief: #e8b4a0;
+    --ink: #e6e4e0;
+    --ink-dim: #8b8f97;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 26px;
+    padding: 34px 18px 50px;
+    background:
+      radial-gradient(ellipse 620px 420px at 50% -8%, #101620 0%, transparent 60%),
+      var(--void);
+    background-attachment: fixed;
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    color: var(--ink);
+  }
+
+  .header { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+  .eyebrow {
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--rain);
+    text-align: center;
+  }
+  .subhead {
+    margin: 0;
+    max-width: 300px;
+    text-align: center;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--ink-dim);
+  }
+
+  .frame {
+    position: relative;
+    width: min(88vw, 340px);
+    padding: 16px 16px 0;
+    border-radius: 20px 20px 12px 12px;
+    background: linear-gradient(160deg, #343a44 0%, var(--slate) 45%, var(--slate-deep) 100%);
+    box-shadow:
+      0 0 0 1px rgba(0, 0, 0, .7),
+      inset 0 0 0 2px rgba(180, 190, 200, .1),
+      0 24px 60px -16px rgba(0, 0, 0, .9);
+  }
+  .frame::before {
+    content: '';
+    position: absolute;
+    top: -7px;
+    left: 50%;
+    width: 13px;
+    height: 13px;
+    margin-left: -6.5px;
+    background: linear-gradient(135deg, #eef4f8, var(--rain) 55%, #3d5870);
+    transform: rotate(45deg);
+    border-radius: 2px;
+    box-shadow: 0 0 14px 3px var(--rain-soft), 0 0 0 1px rgba(0, 0, 0, .5);
+  }
+
+  .window {
+    position: relative;
+    border-radius: 11px;
+    overflow: hidden;
+    background: #05070b;
+    box-shadow: inset 0 0 44px rgba(0, 0, 0, .9), inset 0 0 0 1px rgba(255, 255, 255, .04);
+  }
+  .window svg { display: block; width: 100%; height: auto; }
+
+  .rain-drop {
+    stroke: var(--rain);
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    transform-box: fill-box;
+    animation-name: rainfall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  @keyframes rainfall {
+    0% { transform: translateY(0); opacity: 0; }
+    8% { opacity: .55; }
+    88% { opacity: .35; }
+    100% { transform: translateY(370px); opacity: 0; }
+  }
+
+  #faceGroup {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: press 5s ease-in-out infinite;
+  }
+  @keyframes press {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(2px); }
+  }
+
+  #fogOverlay { transition: opacity .4s ease; }
+
+  .plate { text-align: center; padding: 10px 8px 4px; }
+  .plate h1 {
+    margin: 2px 0 0;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    letter-spacing: .08em;
+    font-size: clamp(19px, 5.4vw, 24px);
+    color: var(--ink);
+    text-shadow: 0 0 14px rgba(0, 0, 0, .8), 0 2px 0 #000;
+  }
+  .plate .kind {
+    margin: 3px 0 0;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 14px;
+    letter-spacing: .03em;
+    color: var(--ink-dim);
+  }
+
+  .bottom-skull {
+    display: flex;
+    justify-content: center;
+    padding: 6px 0 12px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, .7));
+  }
+
+  .hud { width: min(88vw, 340px); display: flex; flex-direction: column; gap: 9px; }
+  .hud-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+  }
+  .hud-row span:last-child { font-weight: 600; color: var(--ink); transition: color .3s ease; }
+  .hud-row span:last-child.tense { color: var(--dread); }
+
+  .fog-track {
+    height: 11px;
+    border-radius: 6px;
+    background: var(--slate-deep);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06);
+    overflow: hidden;
+  }
+  .fog-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, #2c4358, var(--rain) 60%, #eef4f8);
+    box-shadow: 0 0 12px var(--rain-soft);
+    transition: width .35s ease;
+  }
+
+  .play-btn {
+    margin-top: 4px;
+    padding: 14px 18px;
+    min-height: 48px;
+    border: none;
+    border-radius: 11px;
+    background: linear-gradient(160deg, var(--rain), #3d5870);
+    color: #10202e;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: .06em;
+    cursor: pointer;
+    box-shadow: 0 10px 22px -8px rgba(127, 168, 201, .5), inset 0 1px 0 rgba(255, 255, 255, .3);
+  }
+  .play-btn:active { transform: translateY(1px); }
+  .play-btn:disabled { opacity: .45; cursor: default; }
+  .play-btn:focus-visible,
+  .reset-btn:focus-visible {
+    outline: 2px solid var(--relief);
+    outline-offset: 2px;
+  }
+
+  .footer-count {
+    margin: 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    letter-spacing: .04em;
+    color: var(--ink-dim);
+  }
+  .footer-count strong { font-weight: 600; color: var(--rain); }
+
+  .victory {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    text-align: center;
+    background: rgba(4, 5, 8, .92);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .4s ease;
+  }
+  .victory.show { opacity: 1; pointer-events: auto; }
+  .victory .title {
+    margin: 0;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(18px, 5.2vw, 22px);
+    letter-spacing: .08em;
+    color: var(--relief);
+    text-shadow: 0 0 22px rgba(232, 180, 160, .5);
+  }
+  .victory .detail {
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 12px;
+    color: var(--ink-dim);
+    letter-spacing: .04em;
+  }
+  .reset-btn {
+    margin-top: 4px;
+    padding: 10px 18px;
+    min-height: 44px;
+    border-radius: 9px;
+    border: 1px solid var(--relief);
+    background: transparent;
+    color: var(--relief);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    font-size: 13px;
+    letter-spacing: .05em;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .rain-drop { animation: none !important; opacity: .25; }
+    #faceGroup { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="header">
+    <p class="eyebrow">Ghost Hunter — live prototype</p>
+    <p class="subhead">Every phrase you play fogs the glass a little more — stop, and the rain clears just enough to see it again.</p>
+  </div>
+
+  <div class="frame">
+    <div class="window">
+      <svg viewBox="0 0 300 320" aria-hidden="true">
+        <defs>
+          <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0d1420"/>
+            <stop offset="100%" stop-color="#050810"/>
+          </linearGradient>
+          <radialGradient id="distantLight" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffe9c2"/>
+            <stop offset="60%" stop-color="#e0a860" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#e0a860" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="faceFill" cx="45%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#f5f2ee"/>
+            <stop offset="55%" stop-color="#c9c6c4"/>
+            <stop offset="100%" stop-color="#8f8d8f"/>
+          </radialGradient>
+          <filter id="fogBlur" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="6"/>
+          </filter>
+        </defs>
+
+        <rect x="20" y="10" width="260" height="280" fill="url(#nightSky)"/>
+        <ellipse cx="235" cy="235" rx="10" ry="7" fill="url(#distantLight)"/>
+
+        <g id="rainGroup"></g>
+
+        <g id="faceGroup">
+          <ellipse cx="150" cy="168" rx="42" ry="52" fill="url(#faceFill)"/>
+          <ellipse cx="128" cy="162" rx="13" ry="18" fill="#050608"/>
+          <ellipse cx="172" cy="162" rx="13" ry="18" fill="#050608"/>
+        </g>
+
+        <rect x="20" y="10" width="260" height="280" fill="none" stroke="#0d0906" stroke-width="16"/>
+        <rect x="143" y="10" width="14" height="280" fill="#0d0906"/>
+        <rect x="20" y="143" width="260" height="14" fill="#0d0906"/>
+
+        <rect id="fogOverlay" x="20" y="10" width="260" height="280" fill="#dfe6ea" opacity="0" filter="url(#fogBlur)"/>
+      </svg>
+
+      <div class="victory" id="victory">
+        <p class="title">Gone From the Window</p>
+        <p class="detail" id="victoryDetail">Fogged over in 5 reps.</p>
+        <button class="reset-btn" id="resetBtn" type="button">Summon it again</button>
+      </div>
+    </div>
+
+    <div class="plate">
+      <h1>The Window Stalker</h1>
+      <p class="kind">Rain-Streaked Watcher</p>
+    </div>
+
+    <div class="bottom-skull">
+      <svg viewBox="0 0 24 20" width="24" height="20" aria-hidden="true">
+        <defs>
+          <linearGradient id="metalGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#c9cdd3"/>
+            <stop offset="1" stop-color="#5d626c"/>
+          </linearGradient>
+        </defs>
+        <circle cx="12" cy="8" r="7" fill="url(#metalGrad)"/>
+        <path d="M5.3 9.5 a7 7 0 0 0 13.4 0 L17.6 14 a2 2 0 0 1 -2 1.7 h-7 a2 2 0 0 1 -2 -1.7 Z" fill="url(#metalGrad)"/>
+        <circle cx="9" cy="8.3" r="1.7" fill="#0a0a0a"/>
+        <circle cx="15" cy="8.3" r="1.7" fill="#0a0a0a"/>
+        <polygon points="12,10 12.9,11.8 11.1,11.8" fill="#0a0a0a"/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="hud">
+    <div class="hud-row"><span>Fog</span><span id="fogPct">15%</span></div>
+    <div class="fog-track"><div class="fog-fill" id="fogFill"></div></div>
+    <button class="play-btn" id="playBtn" type="button">🎸 Play a phrase</button>
+    <p class="footer-count">Ghosts banished this session: <strong id="defeatCount">–</strong></p>
+  </div>
+
+<script>
+(function () {
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const FOG_START = 15;
+  const FOG_STEP = 16;
+  const FOG_DECAY_STEP = 3;
+  const FOG_DECAY_FLOOR = 8;
+  const DECAY_INTERVAL_MS = 2800;
+
+  const rainGroup = document.getElementById('rainGroup');
+  const fogOverlay = document.getElementById('fogOverlay');
+  const fogFill = document.getElementById('fogFill');
+  const fogPct = document.getElementById('fogPct');
+  const playBtn = document.getElementById('playBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const defeatCountEl = document.getElementById('defeatCount');
+  const victoryEl = document.getElementById('victory');
+  const victoryDetail = document.getElementById('victoryDetail');
+
+  let fog = FOG_START;
+  let defeated = 0;
+  let hits = 0;
+  let busy = false;
+
+  const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function scatterRain(n) {
+    for (let i = 0; i < n; i++) {
+      const x = 26 + Math.random() * 248;
+      const line = document.createElementNS(SVG_NS, 'line');
+      line.setAttribute('x1', x.toFixed(1));
+      line.setAttribute('y1', '-30');
+      line.setAttribute('x2', (x - 8).toFixed(1));
+      line.setAttribute('y2', '-5');
+      line.setAttribute('class', 'rain-drop');
+      line.style.animationDuration = `${1.1 + Math.random() * 0.9}s`;
+      line.style.animationDelay = `${Math.random() * 2.4}s`;
+      rainGroup.appendChild(line);
+    }
+  }
+
+  function updateFogUI() {
+    const shown = Math.max(fog, 0);
+    fogFill.style.width = `${shown}%`;
+    fogPct.textContent = `${shown}%`;
+    fogPct.classList.toggle('tense', shown < 25);
+    fogOverlay.style.opacity = (shown / 100 * 0.92).toFixed(2);
+  }
+
+  async function loadDefeats() {
+    if (!window.storage) { defeatCountEl.textContent = '0'; return; }
+    try {
+      const res = await window.storage.get('windowstalker:defeats');
+      defeated = (res && res.value) ? (parseInt(res.value, 10) || 0) : 0;
+    } catch (e) {
+      defeated = 0;
+    }
+    defeatCountEl.textContent = defeated;
+  }
+
+  async function saveDefeats() {
+    if (!window.storage) return;
+    try {
+      await window.storage.set('windowstalker:defeats', String(defeated));
+    } catch (e) {
+      /* non-fatal: session count still shown, just won't persist */
+    }
+  }
+
+  function tick() {
+    if (busy) return;
+    fog = Math.max(FOG_DECAY_FLOOR, fog - FOG_DECAY_STEP);
+    updateFogUI();
+  }
+
+  function playPhrase() {
+    if (busy) return;
+    fog = Math.min(100, fog + FOG_STEP);
+    hits += 1;
+    updateFogUI();
+
+    if (fog >= 100) {
+      busy = true;
+      playBtn.disabled = true;
+      setTimeout(onBanish, 550);
+    }
+  }
+
+  function onBanish() {
+    defeated += 1;
+    defeatCountEl.textContent = defeated;
+    victoryDetail.textContent = `Fogged over in ${hits} reps.`;
+    victoryEl.classList.add('show');
+    saveDefeats();
+  }
+
+  function resetStalker() {
+    fog = FOG_START;
+    hits = 0;
+    busy = false;
+    playBtn.disabled = false;
+    updateFogUI();
+    victoryEl.classList.remove('show');
+  }
+
+  playBtn.addEventListener('click', playPhrase);
+  resetBtn.addEventListener('click', resetStalker);
+
+  scatterRain(14);
+  updateFogUI();
+  loadDefeats();
+
+  if (!reduceMotion) {
+    setInterval(tick, DECAY_INTERVAL_MS);
+  }
+})();
+</script>
+</body>
+</html>
