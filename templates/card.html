@@ -216,6 +216,24 @@
     </p>
   </div>
 
+<audio id="part1" src="/static/audio/song-part1.m4a"></audio>
+<audio id="part2" src="/static/audio/song-part2.m4a"></audio>
+
+<script>
+const part1 = document.getElementById('part1');
+const part2 = document.getElementById('part2');
+
+part1.addEventListener('ended', () => {
+  part2.currentTime = 0;
+  part2.play();
+});
+
+function playFullSong() {
+  part1.currentTime = 0;
+  part1.play();
+}
+</script>
+  
 <script>
 (function () {
   const tg = window.Telegram && window.Telegram.WebApp;
