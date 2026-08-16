@@ -232,6 +232,11 @@ function playFullSong() {
   part1.currentTime = 0;
   part1.play();
 }
+
+// after successful /api/practice response
+if (ghost === 'rockstar-specter' && justBanished) {
+  document.getElementById('rockstarTheme').play();
+}
 </script>
   
 <script>
